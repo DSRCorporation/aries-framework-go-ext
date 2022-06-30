@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/hyperledger/aries-framework-go/pkg/common/log"
@@ -16,21 +17,49 @@ import (
 
 var logger = log.New("aries-framework-go-ext/vdr/cheqd")
 
-const (
-	namespace = "cheqd"
-)
-
 // VDR implements the VDR interface.
-type VDR struct{}
-
-// New creates a new VDR struct.
-func New() *VDR {
-	return &VDR{}
+type VDR struct {
+	endpointURL      string
+	client           *http.Client
+	accept           Accept
+	resolveAuthToken string
 }
 
-// Accept method of the VDR interface.
+// Accept is method to accept did method.
+type Accept func(method string) bool
+
+// Option configures the peer vdr.
+type Option func(opts *VDR)
+
+// New creates new DID Resolver.
+func New(endpointURL string, opts ...Option) (*VDR, error) {
+	v := &VDR{client: &http.Client{}, accept: func(method string) bool { return true }}
+
+	for _, opt := range opts {
+		opt(v)
+	}
+
+	// Validate host
+	_, err := url.ParseRequestURI(endpointURL)
+	if err != nil {
+		return nil, fmt.Errorf("base URL invalid: %w", err)
+	}
+
+	v.endpointURL = endpointURL
+
+	return v, nil
+}
+
+// WithAccept option is for accept did method.
+func WithAccept(accept Accept) Option {
+	return func(opts *VDR) {
+		opts.accept = accept
+	}
+}
+
+// Accept did method - attempt to resolve any method.
 func (v *VDR) Accept(method string) bool {
-	return method == namespace
+	return v.accept(method)
 }
 
 // Update did doc.
