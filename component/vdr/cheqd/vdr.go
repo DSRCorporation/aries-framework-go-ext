@@ -17,7 +17,7 @@ import (
 var logger = log.New("aries-framework-go-ext/vdr/cheqd")
 
 const (
-	namespace = "web"
+	namespace = "cheqd"
 )
 
 // VDR implements the VDR interface.
