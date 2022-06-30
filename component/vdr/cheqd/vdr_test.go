@@ -16,7 +16,7 @@ func TestCheqdDIDResolver(t *testing.T) {
 
 		did := "did:cheqd:mainnet:zF7rhDBfUt9d1gJPjx7s1JXfUY7oVWkY#key1"
 
-		docResolution, err := v.ReadCheqd(did)
+		docResolution, err := v.Read(did)
 		require.Nil(t, err)
 
 		require.Equal(t, 1, len(docResolution.DIDDocument.Context))

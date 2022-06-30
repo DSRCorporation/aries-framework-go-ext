@@ -77,11 +77,11 @@ func (v *VDR) Close() error {
 	return nil
 }
 
-// ReadCheqd resolves a did:cheqd did.
-func (v *VDR) ReadCheqd(didID string) (*did.DocResolution, error) {
+// Read resolves a did:cheqd did.
+func (v *VDR) Read(didID string) (*did.DocResolution, error) {
 	httpClient := &http.Client{}
 
-	address := parseDIDCheqd(didID)
+	address := parseDIDCheqd(v.endpointURL, didID)
 
 	req, err := http.NewRequest("GET", address, http.NoBody)
 	if err != nil {
@@ -233,13 +233,8 @@ func convertTypeRawDocCheqdToRawDoc(rawDocCheqd *RawDocCheqd) *rawDoc {
 	return rawDoc
 }
 
-func parseDIDCheqd(id string) string {
-	var address string
-
-	beginoOfDidLink := "https://resolver.cheqd.net/1.0/identifiers/"
-	address = beginoOfDidLink + id
-
-	return address
+func parseDIDCheqd(endpointURL string, id string) string {
+	return endpointURL + id
 }
 
 func closeResponseBody(respBody io.Closer) {
