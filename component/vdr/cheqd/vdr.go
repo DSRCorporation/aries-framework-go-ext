@@ -219,8 +219,3 @@ func closeResponseBody(respBody io.Closer) {
 		logger.Errorf("Failed to close response body: %v", e)
 	}
 }
-
-func main() {
-	fmt.Println("Hello World!")
-
-}
