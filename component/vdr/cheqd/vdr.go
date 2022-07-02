@@ -33,11 +33,7 @@ type Option func(opts *VDR)
 
 // New creates new DID Resolver.
 func New(endpointURL string, opts ...Option) (*VDR, error) {
-	v := &VDR{client: &http.Client{}, accept: func(method string) bool { return true }}
-
-	for _, opt := range opts {
-		opt(v)
-	}
+	v := &VDR{client: &http.Client{}, accept: func(method string) bool { return method == "cheqd" }}
 
 	// Validate host
 	_, err := url.ParseRequestURI(endpointURL)
