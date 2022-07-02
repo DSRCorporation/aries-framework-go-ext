@@ -203,7 +203,7 @@ func convertTypeRawDocCheqdToRawDoc(rawDocCheqd *RawDocCheqd) *rawDoc {
 
 	// Context constants.
 	context := make([]interface{}, len(rawDocCheqd.DidDocument.Context))
-	for i := 0; i < len(rawDocCheqd.DidDocument.Authentication); i++ {
+	for i := 0; i < len(rawDocCheqd.DidDocument.Context); i++ {
 		context[i] = rawDocCheqd.DidDocument.Context[i]
 	}
 
