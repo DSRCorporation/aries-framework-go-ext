@@ -9,8 +9,6 @@ import (
 
 	"github.com/hyperledger/aries-framework-go/pkg/common/log"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/did"
-
-	diddoc "github.com/hyperledger/aries-framework-go/pkg/doc/did"
 	vdrapi "github.com/hyperledger/aries-framework-go/pkg/framework/aries/api/vdr"
 )
 
@@ -58,7 +56,7 @@ func (v *VDR) Accept(method string) bool {
 }
 
 // Update did doc.
-func (v *VDR) Update(didDoc *diddoc.Doc, opts ...vdrapi.DIDMethodOption) error {
+func (v *VDR) Update(didDoc *did.Doc, opts ...vdrapi.DIDMethodOption) error {
 	return fmt.Errorf("not supported")
 }
 
