@@ -29,7 +29,7 @@ func TestCheqdDIDResolver(t *testing.T) {
 		require.Equal(t, "Ed25519VerificationKey2020", docResolution.DIDDocument.VerificationMethod[0].Type)
 		require.Equal(t, "did:cheqd:mainnet:zF7rhDBfUt9d1gJPjx7s1JXfUY7oVWkY", docResolution.DIDDocument.VerificationMethod[0].Controller)
 
-		require.Equal(t, 1, len(docResolution.DIDDocument.Service))
+		require.Equal(t, 4, len(docResolution.DIDDocument.Service))
 		require.Equal(t, "did:cheqd:mainnet:zF7rhDBfUt9d1gJPjx7s1JXfUY7oVWkY#website", docResolution.DIDDocument.Service[0].ID)
 		require.Equal(t, "LinkedDomains", docResolution.DIDDocument.Service[0].Type)
 		require.Equal(t, "https://www.cheqd.io", docResolution.DIDDocument.Service[0].ServiceEndpoint)

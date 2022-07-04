@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/hyperledger/aries-framework-go/pkg/common/log"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/did"
@@ -122,26 +121,9 @@ func (v *VDR) Read(didID string) (*did.DocResolution, error) {
 	return &did.DocResolution{DIDDocument: doc}, nil
 }
 
-// RawDoc type.
-type rawDoc struct {
-	Context              interface{}              `json:"@context,omitempty"`
-	ID                   string                   `json:"id,omitempty"`
-	VerificationMethod   []map[string]interface{} `json:"verificationMethod,omitempty"`
-	PublicKey            []map[string]interface{} `json:"publicKey,omitempty"`
-	Service              []map[string]interface{} `json:"service,omitempty"`
-	Authentication       []interface{}            `json:"authentication,omitempty"`
-	AssertionMethod      []interface{}            `json:"assertionMethod,omitempty"`
-	CapabilityDelegation []interface{}            `json:"capabilityDelegation,omitempty"`
-	CapabilityInvocation []interface{}            `json:"capabilityInvocation,omitempty"`
-	KeyAgreement         []interface{}            `json:"keyAgreement,omitempty"`
-	Created              *time.Time               `json:"created,omitempty"`
-	Updated              *time.Time               `json:"updated,omitempty"`
-	Proof                []interface{}            `json:"proof,omitempty"`
-}
-
 // RawDocCheqd type.
 type RawDocCheqd struct {
-	DidDocument           DidDocument           `json:"didDocument"`
+	DidDocument           did.Doc               `json:"didDocument"`
 	DidDocumentMetadata   DidDocumentMetadata   `json:"didDocumentMetadata"`
 	DidResolutionMetadata DidResolutionMetadata `json:"didResolutionMetadata"`
 }
@@ -190,40 +172,13 @@ type DID struct {
 	Method           string `json:"method"`
 }
 
-func convertTypeRawDocCheqdToRawDoc(rawDocCheqd *RawDocCheqd) *rawDoc {
-	// Verification Method constants.
-	vmController := interface{}(rawDocCheqd.DidDocument.VerificationMethod[0].Controller)
-	vmID := interface{}(rawDocCheqd.DidDocument.VerificationMethod[0].ID)
-	vmPublicKeyMultibase := interface{}(rawDocCheqd.DidDocument.VerificationMethod[0].PublicKeyMultibase)
-	vmType := interface{}(rawDocCheqd.DidDocument.VerificationMethod[0].Type)
-
-	// Context constants.
-	context := make([]interface{}, len(rawDocCheqd.DidDocument.Context))
-	for i := 0; i < len(rawDocCheqd.DidDocument.Context); i++ {
-		context[i] = rawDocCheqd.DidDocument.Context[i]
-	}
-
-	// Service constants.
-	serviceID := interface{}(rawDocCheqd.DidDocument.Service[0].ID)
-	serviceEndpoint := interface{}(rawDocCheqd.DidDocument.Service[0].ServiceEndpoint)
-	serviceType := interface{}(rawDocCheqd.DidDocument.Service[0].Type)
-
-	// Authatication constants.
-	authentication := make([]interface{}, len(rawDocCheqd.DidDocument.Authentication))
-	for i := 0; i < len(rawDocCheqd.DidDocument.Authentication); i++ {
-		authentication[i] = rawDocCheqd.DidDocument.Authentication[i]
-	}
-
-	rawDoc := &rawDoc{
-		Context: context,
-		ID:      rawDocCheqd.DidDocument.ID,
-		VerificationMethod: []map[string]interface{}{
-			{"controller": vmController, "id": vmID, "publicKeyMultibase": vmPublicKeyMultibase, "type": vmType},
-		},
-		Service: []map[string]interface{}{
-			{"id": serviceID, "serviceEndpoint": serviceEndpoint, "type": serviceType},
-		},
-		Authentication: authentication,
+func convertTypeRawDocCheqdToRawDoc(rawDocCheqd *RawDocCheqd) *did.Doc {
+	rawDoc := &did.Doc{
+		Context:            rawDocCheqd.DidDocument.Context,
+		ID:                 rawDocCheqd.DidDocument.ID,
+		VerificationMethod: rawDocCheqd.DidDocument.VerificationMethod,
+		Service:            rawDocCheqd.DidDocument.Service,
+		Authentication:     rawDocCheqd.DidDocument.Authentication,
 	}
 
 	return rawDoc
