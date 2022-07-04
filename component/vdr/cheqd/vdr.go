@@ -32,6 +32,10 @@ type Option func(opts *VDR)
 func New(endpointURL string, opts ...Option) (*VDR, error) {
 	v := &VDR{client: &http.Client{}, accept: func(method string) bool { return method == "cheqd" }}
 
+	for _, opt := range opts {
+		opt(v)
+	}
+
 	// Validate host
 	_, err := url.ParseRequestURI(endpointURL)
 	if err != nil {
@@ -99,16 +103,14 @@ func (v *VDR) Read(didID string) (*did.DocResolution, error) {
 		return nil, fmt.Errorf("error resolving did:cheqd did --> error reading https response body: %s --> %w", body, err)
 	}
 
-	rawDocCheqd := &RawDocCheqd{}
+	var rawDocCheqd RawDocCheqd
 	if err = json.Unmarshal(body, &rawDocCheqd); err != nil {
 		return nil, fmt.Errorf("error unmarshal did:cheqd did --> error unmarshal https response body: %s --> %w", body, err)
 	}
 
-	rawDoc := convertTypeRawDocCheqdToRawDoc(rawDocCheqd)
-
-	body, err = json.Marshal(rawDoc)
+	body, err = json.Marshal(rawDocCheqd.DidDocument)
 	if err != nil {
-		return nil, fmt.Errorf("error marshal did:cheqd did --> error marshaling https response body: %s --> %w", body, err)
+		return nil, fmt.Errorf("error marshal did:cheqd did --> error marshal https response body: %s --> %w", body, err)
 	}
 
 	doc, err := did.ParseDocument(body)
@@ -121,69 +123,11 @@ func (v *VDR) Read(didID string) (*did.DocResolution, error) {
 
 // RawDocCheqd type.
 type RawDocCheqd struct {
-	DidDocument           did.Doc               `json:"didDocument"`
-	DidDocumentMetadata   DidDocumentMetadata   `json:"didDocumentMetadata"`
-	DidResolutionMetadata DidResolutionMetadata `json:"didResolutionMetadata"`
-}
-
-// DidDocument type.
-type DidDocument struct {
-	Context            []string             `json:"@context"`
-	Authentication     []string             `json:"authentication"`
-	ID                 string               `json:"id"`
-	Service            []Service            `json:"service"`
-	VerificationMethod []VerificationMethod `json:"verificationMethod"`
-}
-
-// Service type.
-type Service struct {
-	ID              string `json:"id"`
-	ServiceEndpoint string `json:"serviceEndpoint"`
-	Type            string `json:"type"`
-}
-
-// VerificationMethod type.
-type VerificationMethod struct {
-	Controller         string `json:"controller"`
-	ID                 string `json:"id"`
-	PublicKeyMultibase string `json:"publicKeyMultibase"`
-	Type               string `json:"type"`
-}
-
-// DidDocumentMetadata type.
-type DidDocumentMetadata struct {
-	Created   string `json:"created"`
-	VersionID string `json:"versionId"`
-}
-
-// DidResolutionMetadata type.
-type DidResolutionMetadata struct {
-	ContentType string `json:"contentType"`
-	Retrieved   string `json:"retrieved"`
-	DID         DID    `json:"did"`
-}
-
-// DID type.
-type DID struct {
-	DIDString        string `json:"didString"`
-	MethodSpecificID string `json:"methodSpecificId"`
-	Method           string `json:"method"`
-}
-
-func convertTypeRawDocCheqdToRawDoc(rawDocCheqd *RawDocCheqd) *did.Doc {
-	rawDoc := &did.Doc{
-		Context:            rawDocCheqd.DidDocument.Context,
-		ID:                 rawDocCheqd.DidDocument.ID,
-		VerificationMethod: rawDocCheqd.DidDocument.VerificationMethod,
-		Service:            rawDocCheqd.DidDocument.Service,
-		Authentication:     rawDocCheqd.DidDocument.Authentication,
-	}
-
-	return rawDoc
+	DidDocument interface{} `json:"didDocument"`
 }
 
 func parseDIDCheqd(endpointURL string, id string) string {
-	return endpointURL + id
+	return endpointURL + "/" + id
 }
 
 func closeResponseBody(respBody io.Closer) {

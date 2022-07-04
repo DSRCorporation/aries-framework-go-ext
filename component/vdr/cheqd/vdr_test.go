@@ -9,9 +9,8 @@ import (
 func TestCheqdDIDResolver(t *testing.T) {
 	t.Run("test cheqd resolve did success", func(t *testing.T) {
 		endpointURL := "https://resolver.cheqd.net/1.0/identifiers/"
-		methodName := "cheqd"
 
-		v, err := New(endpointURL, WithAccept(func(method string) bool { return method == methodName }))
+		v, err := New(endpointURL)
 		require.Nil(t, err)
 
 		did := "did:cheqd:mainnet:zF7rhDBfUt9d1gJPjx7s1JXfUY7oVWkY#key1"
